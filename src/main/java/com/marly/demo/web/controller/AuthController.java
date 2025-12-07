@@ -8,10 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping
@@ -42,7 +39,7 @@ public class AuthController {
 
         String nombreRol;
         switch (rolSeleccionado) {
-            case "2" -> nombreRol = "ADMINISTRADOR";
+            case "2" -> nombreRol = "ADMIN";
             case "1" -> nombreRol = "USUARIO";
             default -> nombreRol = "USUARIO";
         }
@@ -54,7 +51,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestParam Map<String, String> body) {
+    public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> body) {
         String correo = body.get("correo");
         String contrasenia = body.get("contraseña");
 
@@ -64,23 +61,22 @@ public class AuthController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("status", "error"));
             }
 
+            String rol = usuario.getRol().stream()
+                    .findFirst()
+                    .map(r -> r.getNombre().toLowerCase())
+                    .orElse("usuario");
 
-           String rol = usuario.getRol().stream()
-                .findFirst()
-                .map(r -> r.getNombre().toLowerCase())
-                .orElse("usuario");
-
-             return ResponseEntity.ok(Map.of(
-                "status", "ok",
-                     "id", String.valueOf(usuario.getId()),
-                "rol", rol,
-                "nombre", usuario.getNombre(),
-                "apellidos", usuario.getApellidos(),
-                "correo", usuario.getCorreo(),
-                "dni", usuario.getDni(),
-                "direccion", usuario.getDireccion(),
-                "telefono", usuario.getTelefono()
-        ));
+            return ResponseEntity.ok(Map.of(
+                    "status", "ok",
+                    "id", String.valueOf(usuario.getId()),
+                    "rol", rol,
+                    "nombre", usuario.getNombre(),
+                    "apellidos", usuario.getApellidos(),
+                    "correo", usuario.getCorreo(),
+                    "dni", usuario.getDni(),
+                    "direccion", usuario.getDireccion(),
+                    "telefono", usuario.getTelefono()
+            ));
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("status", "error"));
         }

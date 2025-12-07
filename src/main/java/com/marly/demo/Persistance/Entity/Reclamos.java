@@ -19,7 +19,7 @@ public class Reclamos {
     @Column(name = "estadoreclamo", nullable = false)
     private EstadoReclamo estadoreclamo = EstadoReclamo.PENDIENTE;
 
-    @Column(name = "fechareclamo", columnDefinition = "DATETIME(0)")
+    @Column(name = "fechareclamo")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Timestamp fechareclamo;
 
