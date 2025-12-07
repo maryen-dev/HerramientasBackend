@@ -15,6 +15,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
+import com.marly.demo.Domain.Service.FileStorageService;
+
+
 
 
 @Service
@@ -25,6 +28,8 @@ public class ProductService {
 
     @Autowired
     private FileStorageService fileStorageService;
+
+
 
     public List<Product> getAll() {
         return productRepository.getAll();
@@ -38,53 +43,50 @@ public class ProductService {
         return productRepository.getByCategory(categoryId);
     }
 
-    public Product save(Product product, MultipartFile file) throws IOException {
-        if (file != null && !file.isEmpty()) {
-            String fileName = fileStorageService.saveFile(file);
-            product.setProductImage(fileName);
+    public Product save(Product product, String imageUrl) throws IOException {
+        // Si se recibe una URL, se asigna directamente
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            product.setProductImage(imageUrl);
+        } else {
+            throw new IllegalArgumentException("URL de la imagen no proporcionada");
         }
         return productRepository.save(product);
     }
 
     public boolean delete(int productId) {
-    return getProduct(productId).map(product -> {
-        
-        if (product.getProductImage() != null) {
-            Path imagePath = Paths.get(fileStorageService.getUploadDir()).resolve(product.getProductImage());
-            try {
-                Files.deleteIfExists(imagePath);
-            } catch (IOException e) {
-                e.printStackTrace();
+     return getProduct(productId).map(product -> {
+            if (product.getProductImage() != null) {
+                Path imagePath = Paths.get(fileStorageService.getUploadDir()).resolve(product.getProductImage());
+                try {
+                    Files.deleteIfExists(imagePath);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-        }
-        productRepository.delete(productId);
-        return true;
-    }).orElse(false);
-}
+            productRepository.delete(productId);
+            return true;
+        }).orElse(false);
+    }
 
    
 
 
-public Product update(Product product, MultipartFile file) throws IOException {
-    return getProduct(product.getProductId()).map(existing -> {
-        try {
-            if (file != null && !file.isEmpty()) {
-                
-                if (existing.getProductImage() != null) {
-                    Path oldImage = Paths.get(fileStorageService.getUploadDir()).resolve(existing.getProductImage());
-                    Files.deleteIfExists(oldImage);
+public Product update(Product product, String imageUrl) throws IOException {
+        return getProduct(product.getProductId()).map(existing -> {
+            try {
+                if (imageUrl != null && !imageUrl.isEmpty()) {
+                    if (existing.getProductImage() != null) {
+                        Path oldImage = Paths.get(fileStorageService.getUploadDir()).resolve(existing.getProductImage());
+                        Files.deleteIfExists(oldImage);
+                    }
+                    product.setProductImage(imageUrl);
+                } else {
+                    product.setProductImage(existing.getProductImage());
                 }
-                
-                String fileName = fileStorageService.saveFile(file);
-                product.setProductImage(fileName);
-            } else {
-                
-                product.setProductImage(existing.getProductImage());
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return productRepository.update(product);
-    }).orElse(product);
-}
+            return productRepository.update(product);
+        }).orElse(product);
+    }
 }
