@@ -3,6 +3,7 @@ package com.marly.demo.Persistance;
 import com.marly.demo.Domain.Product;
 import com.marly.demo.Domain.Repository.ProductRepository;
 import com.marly.demo.Persistance.Crud.ProductoCrudRepository;
+import com.marly.demo.Persistance.Crud.UsuarioCrudRepository;
 import com.marly.demo.Persistance.Entity.Producto;
 import com.marly.demo.Persistance.Mapper.ProductMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,10 @@ public class ProductoRepository implements ProductRepository {
 
     @Autowired
     private ProductMapper productMapper;
+    @Autowired
+    private UsuarioCrudRepository usuarioCrudRepository;
+
+
 
     @Override
     public List<Product> getAll() {

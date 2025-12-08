@@ -35,8 +35,8 @@ public class ProductController {
 
     @PostMapping("/save")
     public Product save(@RequestPart("product") Product product,
-                        @RequestPart("image") MultipartFile file) throws IOException {
-        return productService.save(product, file);
+                        @RequestParam(value = "imageUrl", required = false) String imageUrl) throws IOException {
+        return productService.save(product, imageUrl);
     }
 
     @DeleteMapping("/delete/{id}")
@@ -48,10 +48,10 @@ public class ProductController {
     public ResponseEntity<Product> updateProduct(
             @PathVariable int id,
             @ModelAttribute Product product,
-            @RequestPart(value = "file", required = false) MultipartFile file
+            @RequestParam(value = "imageUrl", required = false) String imageUrl
     ) throws IOException {
         product.setProductId(id);
-        Product updated = productService.update(product, file);
+           Product updated = productService.update(product, imageUrl);
         return ResponseEntity.ok(updated);
     }
 }
